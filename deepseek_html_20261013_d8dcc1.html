@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>编程猫9月校区 · 校区总榜</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#08090d;--panel:#0d1117;--surface:#161b22;--surface-2:#1c222b;
+  --line:#1f2632;--line-2:#262d38;--text:#e6edf3;--text-2:#a8b3c0;
+  --muted:#6b7683;--faint:#4a5361;--blue:#7aa2f7;--blue-2:#4f76c5;
+  --purple:#9d7cd8;--green:#7ee787;--gold:#e0af68;--gold-2:#c99a4a;
+  --red:#f7768e;--pink:#f0a0d0;--cyan:#7ee0f7;
+  --mono:"SF Mono","JetBrains Mono","Fira Code",Consolas,Menlo,monospace;
+}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--text);font-size:14px;
+  min-height:100vh;padding:32px 24px;-webkit-font-smoothing:antialiased;
+  letter-spacing:.01em;position:relative;overflow-x:hidden;
+}
+#bgCanvas{position:fixed;inset:0;z-index:-3;pointer-events:none;opacity:.85}
+body::before{
+  content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    radial-gradient(900px 600px at 10% 15%,rgba(122,162,247,.14),transparent 55%),
+    radial-gradient(700px 500px at 90% 20%,rgba(157,124,216,.12),transparent 55%),
+    radial-gradient(800px 500px at 50% 85%,rgba(126,231,135,.08),transparent 55%),
+    radial-gradient(700px 400px at 15% 90%,rgba(224,175,104,.1),transparent 55%),
+    radial-gradient(600px 400px at 85% 70%,rgba(126,224,247,.08),transparent 55%);
+  animation:colorDrift 22s ease-in-out infinite alternate;
+}
+@keyframes colorDrift{
+  0%{background-position:0% 0%,100% 0%,50% 100%,0% 100%,100% 100%;filter:hue-rotate(0deg)}
+  50%{background-position:15% 10%,85% 10%,55% 90%,10% 90%,90% 75%;filter:hue-rotate(15deg)}
+  100%{background-position:5% 20%,95% 15%,45% 95%,5% 85%,95% 80%;filter:hue-rotate(-10deg)}
+}
+body::after{
+  content:'';position:fixed;inset:-50%;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 600px 300px at 25% 35%,rgba(122,162,247,.1),transparent 50%),
+    radial-gradient(ellipse 500px 250px at 75% 65%,rgba(157,124,216,.1),transparent 50%),
+    radial-gradient(ellipse 400px 200px at 50% 15%,rgba(224,175,104,.06),transparent 50%);
+  animation:auroraFlow 30s ease-in-out infinite;
+}
+@keyframes auroraFlow{
+  0%,100%{transform:translate(0,0) rotate(0deg) scale(1)}
+  25%{transform:translate(3%,-2%) rotate(6deg) scale(1.05)}
+  50%{transform:translate(-2%,3%) rotate(-5deg) scale(.98)}
+  75%{transform:translate(2%,2%) rotate(3deg) scale(1.02)}
+}
+.wrap{max-width:1440px;margin:0 auto;position:relative;z-index:1}
+.star-particle{position:fixed;pointer-events:none;z-index:9999;font-size:16px;line-height:1;animation:starFly .9s cubic-bezier(.22,1,.36,1) forwards;text-shadow:0 0 8px currentColor;will-change:transform,opacity}
+@keyframes starFly{0%{transform:translate(-50%,-50%) scale(.3) rotate(0deg);opacity:0}20%{transform:translate(-50%,-50%) scale(1.2) rotate(90deg);opacity:1}100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) scale(.4) rotate(var(--rot));opacity:0}}
+.halo-burst{position:fixed;pointer-events:none;width:10px;height:10px;border-radius:50%;border:2px solid var(--gold);z-index:9998;transform:translate(-50%,-50%);animation:haloExpand .7s cubic-bezier(.16,1,.3,1) forwards;box-shadow:0 0 20px rgba(224,175,104,.6)}
+@keyframes haloExpand{0%{width:10px;height:10px;opacity:.9;border-width:3px}100%{width:90px;height:90px;opacity:0;border-width:1px}}
+.plus-float{position:fixed;pointer-events:none;z-index:9999;font-family:var(--mono);font-size:20px;font-weight:800;color:var(--gold);text-shadow:0 0 20px rgba(224,175,104,.9),0 2px 6px rgba(0,0,0,.5);transform:translate(-50%,-50%);animation:plusRise 1s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes plusRise{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}20%{transform:translate(-50%,-70%) scale(1.25);opacity:1}100%{transform:translate(-50%,-160%) scale(1);opacity:0}}
+.minus-float{position:fixed;pointer-events:none;z-index:9999;font-family:var(--mono);font-size:18px;font-weight:800;color:var(--red);text-shadow:0 0 18px rgba(247,118,142,.8),0 2px 6px rgba(0,0,0,.5);transform:translate(-50%,-50%);animation:minusRise .9s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes minusRise{0%{transform:translate(-50%,-50%) scale(.6);opacity:0}20%{transform:translate(-50%,-70%) scale(1.15);opacity:1}100%{transform:translate(-50%,-140%) scale(1);opacity:0}}
+.total-bump{animation:totalBump .6s cubic-bezier(.22,1,.36,1)}
+@keyframes totalBump{0%{transform:scale(1)}35%{transform:scale(1.25);filter:brightness(1.6)}100%{transform:scale(1)}}
+.float-spark{position:fixed;width:4px;height:4px;border-radius:50%;pointer-events:none;z-index:0;animation:floatSpark var(--dur,12s) ease-in-out infinite;animation-delay:var(--delay,0s)}
+@keyframes floatSpark{0%,100%{transform:translate(0,0) scale(1);opacity:.3}25%{transform:translate(20px,-30px) scale(1.5);opacity:.9}50%{transform:translate(-15px,-50px) scale(1);opacity:.5}75%{transform:translate(25px,-20px) scale(1.3);opacity:.8}}
+
+.window{background:rgba(13,17,23,.78);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 40px 100px -40px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.02),0 0 60px -20px rgba(122,162,247,.25),inset 0 1px 0 rgba(255,255,255,.05);position:relative}
+.window::before{content:'';position:absolute;inset:-1px;border-radius:16px;padding:1px;background:linear-gradient(135deg,rgba(122,162,247,.4),transparent 30%,transparent 70%,rgba(157,124,216,.4));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.6;animation:borderShine 8s linear infinite}
+@keyframes borderShine{0%,100%{opacity:.4}50%{opacity:.9}}
+.window-bar{display:flex;align-items:center;gap:10px;padding:13px 20px;background:rgba(22,27,34,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);position:relative}
+.window-bar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(122,162,247,.5),transparent);animation:barScan 4s ease-in-out infinite}
+@keyframes barScan{0%,100%{opacity:.5}50%{opacity:1}}
+.dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;transition:all .3s}
+.dot-r{background:#ff5f57;box-shadow:0 0 10px rgba(255,95,87,.5)}
+.dot-y{background:#febc2e;box-shadow:0 0 10px rgba(254,188,46,.4)}
+.dot-g{background:#28c840;box-shadow:0 0 10px rgba(40,200,64,.4)}
+.window-bar:hover .dot{transform:scale(1.2)}
+.win-title{margin-left:14px;font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.win-title .path{color:var(--faint)}
+.win-title .file{color:var(--text-2)}
+.win-status{margin-left:auto;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:.04em}
+.win-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
+
+.hero{padding:42px 46px 34px;border-bottom:1px solid var(--line);position:relative;background:linear-gradient(180deg,rgba(122,162,247,.04),transparent 60%);overflow:hidden}
+.hero::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:conic-gradient(from 0deg at 50% 50%,transparent 0deg,rgba(122,162,247,.06) 60deg,transparent 120deg,rgba(157,124,216,.06) 180deg,transparent 240deg,rgba(224,175,104,.05) 300deg,transparent 360deg);animation:heroRotate 40s linear infinite;pointer-events:none}
+@keyframes heroRotate{to{transform:rotate(360deg)}}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12.5px;color:var(--blue);letter-spacing:.04em;margin-bottom:20px;padding:6px 14px;background:rgba(122,162,247,.08);border:1px solid rgba(122,162,247,.2);border-radius:6px;position:relative;z-index:1}
+.hero-tag .br{color:var(--faint)}
+.hero h1{font-family:var(--mono);font-size:40px;font-weight:700;letter-spacing:-.01em;line-height:1.1;color:var(--text);position:relative;z-index:1}
+.hero h1 .hash{color:var(--faint);font-weight:400}
+.hero h1 .hl{background:linear-gradient(135deg,var(--blue),var(--purple) 40%,var(--gold) 80%,var(--blue));background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:hlShift 6s ease-in-out infinite}
+@keyframes hlShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-sub{margin-top:16px;font-size:14px;color:var(--text-2);line-height:1.8;max-width:760px;position:relative;z-index:1}
+.hero-sub code{font-family:var(--mono);font-size:13px;background:var(--surface);color:var(--blue);padding:2px 8px;border-radius:5px;border:1px solid var(--line)}
+.rules{margin-top:26px;display:flex;flex-wrap:wrap;gap:12px;position:relative;z-index:1}
+.rule{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:15px;color:var(--text);padding:13px 22px;background:rgba(22,27,34,.7);border:1px solid var(--line-2);border-radius:11px;transition:all .35s cubic-bezier(.16,1,.3,1);font-weight:600;letter-spacing:.02em}
+.rule:hover{border-color:rgba(122,162,247,.6);background:rgba(28,34,43,.95);transform:translateY(-5px) scale(1.06);box-shadow:0 16px 32px -12px rgba(122,162,247,.6)}
+.rule .icon{font-size:19px}
+.rule .pts{color:var(--gold);font-weight:800;font-size:17px;border-left:1px solid var(--line-2);margin-left:2px;padding-left:12px}
+
+.overview{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));border-bottom:1px solid var(--line);background:rgba(22,27,34,.5)}
+.ov{padding:22px 28px;border-right:1px solid var(--line);transition:all .35s cubic-bezier(.16,1,.3,1);position:relative;overflow:hidden}
+.ov:last-child{border-right:none}
+.ov:hover{background:rgba(28,34,43,.7);transform:translateY(-3px)}
+.ov .k{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.06em;font-weight:600}
+.ov .v{font-family:var(--mono);font-size:30px;font-weight:700;margin-top:10px;line-height:1;color:var(--text);letter-spacing:-.02em;display:flex;align-items:baseline}
+.ov .v small{font-size:12px;font-weight:500;color:var(--muted);margin-left:6px}
+.ov .v.blue{color:var(--blue)}
+.ov .v.gold{color:var(--gold)}
+.ov .v.purple{color:var(--purple)}
+
+.tabs{display:flex;background:rgba(22,27,34,.85);border-bottom:1px solid var(--line);padding:0 12px;gap:0;overflow-x:auto}
+.tab{border:none;background:transparent;padding:16px 26px;font-family:var(--mono);font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .3s;white-space:nowrap;display:flex;align-items:center;gap:8px;border-bottom:2px solid transparent;letter-spacing:.02em}
+.tab .ic{font-size:14px;opacity:.75}
+.tab:hover{color:var(--text-2);transform:translateY(-2px)}
+.tab.active{color:var(--text);border-bottom-color:var(--blue)}
+.tab.active .ic{opacity:1;color:var(--blue)}
+.tab.shop.active{border-bottom-color:var(--gold)}
+.tab.shop.active .ic{color:var(--gold)}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:16px 22px;background:rgba(13,17,23,.6);border-bottom:1px solid var(--line)}
+.search-wrap{position:relative;flex:1;min-width:280px}
+.search-wrap input{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);padding:10px 40px 10px 14px;border-radius:9px;font-size:13.5px;font-family:inherit;outline:none;transition:all .3s}
+.search-wrap input:focus{border-color:var(--blue);background:#0a0e14;box-shadow:0 0 0 3px rgba(122,162,247,.15)}
+.search-wrap input::placeholder{color:var(--faint);font-size:13px}
+.search-clear{position:absolute;right:9px;top:50%;transform:translateY(-50%);border:none;background:transparent;color:var(--muted);cursor:pointer;width:22px;height:22px;border-radius:5px;font-size:14px;line-height:1;display:none;align-items:center;justify-content:center}
+.search-clear.show{display:flex}
+.search-clear:hover{background:rgba(247,118,142,.15);color:var(--red)}
+.search-badge{position:absolute;right:-4px;top:-6px;background:var(--blue);color:var(--bg);font-family:var(--mono);font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:100px;display:none}
+.search-badge.show{display:block}
+
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--text-2);padding:10px 18px;border-radius:9px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;letter-spacing:.02em;transition:all .3s;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;position:relative;overflow:hidden}
+.btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(122,162,247,.08);transform:translateY(-3px) scale(1.03);box-shadow:0 12px 24px -8px rgba(122,162,247,.5)}
+.btn.danger:hover{border-color:var(--red);color:var(--red);background:rgba(247,118,142,.06)}
+.btn.share{background:linear-gradient(135deg,#7ee787,#7ee0f7);border-color:transparent;color:#0a0e14;font-weight:800;box-shadow:0 8px 24px -10px rgba(126,231,135,.7);padding:10px 22px}
+.btn.share:hover{color:#0a0e14;transform:translateY(-3px) scale(1.04);box-shadow:0 16px 36px -12px rgba(126,231,135,1)}
+.btn:disabled{opacity:.35;cursor:not-allowed;transform:none!important}
+
+.dd-wrap{position:relative}
+.dd-menu{position:absolute;right:0;top:calc(100% + 8px);background:rgba(13,17,23,.95);backdrop-filter:blur(20px);border:1px solid var(--line-2);border-radius:11px;padding:6px;min-width:280px;box-shadow:0 30px 60px -20px rgba(0,0,0,.8);display:none;z-index:100}
+.dd-menu.show{display:block}
+.dd-label{font-family:var(--mono);font-size:11px;color:var(--muted);padding:10px 14px 6px;letter-spacing:.06em}
+.dd-item{display:flex;align-items:center;gap:11px;width:100%;text-align:left;border:none;background:none;padding:11px 14px;border-radius:7px;font-size:13.5px;color:var(--text-2);cursor:pointer;transition:all .2s;font-family:inherit}
+.dd-item:hover{background:var(--surface);color:var(--blue);transform:translateX(6px)}
+.dd-item .ic{font-family:var(--mono);font-size:14px;width:18px;text-align:center;color:var(--blue);font-weight:700}
+.dd-div{height:1px;background:var(--line);margin:4px 10px}
+.dd-hint{font-size:12px;color:var(--muted);padding:0 14px 10px;line-height:1.6}
+
+.board-head{padding:24px 28px 20px;display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(122,162,247,.04),transparent)}
+.board-title-block{display:flex;flex-direction:column;gap:6px}
+.board-title{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:12px}
+.board-title .icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,rgba(122,162,247,.25),rgba(157,124,216,.2));border:1px solid rgba(122,162,247,.35);display:inline-flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 0 24px -6px rgba(122,162,247,.7);animation:iconPulse 3s ease-in-out infinite}
+@keyframes iconPulse{0%,100%{box-shadow:0 0 24px -6px rgba(122,162,247,.7)}50%{box-shadow:0 0 32px -4px rgba(122,162,247,1)}}
+.board-subtitle{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.03em;padding-left:44px}
+.board-subtitle .dot-sep{color:var(--faint);margin:0 8px}
+.board-count{font-family:var(--mono);font-size:12.5px;color:var(--blue);padding:8px 16px;background:rgba(122,162,247,.08);border:1px solid rgba(122,162,247,.25);border-radius:100px;letter-spacing:.04em;font-weight:700}
+
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:separate;border-spacing:0;min-width:1020px}
+thead th{font-family:var(--mono);font-size:11.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;padding:16px 10px;text-align:center;background:rgba(22,27,34,.9);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:2;white-space:nowrap}
+thead th .head-cell{display:flex;flex-direction:column;align-items:center;gap:7px}
+thead th .head-icon{font-size:15px;opacity:.85}
+thead th .head-name{font-size:11.5px;letter-spacing:.05em}
+thead th .head-pts{color:var(--gold);font-weight:800;font-size:12px}
+thead th .head-bulk{display:flex;gap:3px}
+.head-bulk button{border:1px solid var(--line);background:var(--panel);color:var(--muted);font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:5px;cursor:pointer;font-weight:700;transition:all .2s}
+.head-bulk button:hover{border-color:var(--blue);color:var(--blue);background:rgba(122,162,247,.08)}
+.head-bulk button.minus:hover{border-color:var(--red);color:var(--red);background:rgba(247,118,142,.08)}
+
+tbody td{padding:14px 10px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+tbody tr{transition:all .3s;position:relative}
+tbody tr:hover{background:var(--surface);transform:scale(1.005)}
+tbody tr.top-1{background:linear-gradient(90deg,rgba(224,175,104,.1),rgba(224,175,104,.02) 60%,transparent)}
+tbody tr.top-1:hover{background:linear-gradient(90deg,rgba(224,175,104,.15),rgba(224,175,104,.05) 60%,var(--surface))}
+tbody tr.top-2{background:linear-gradient(90deg,rgba(168,179,192,.07),rgba(168,179,192,.02) 60%,transparent)}
+tbody tr.top-3{background:linear-gradient(90deg,rgba(184,115,51,.1),rgba(184,115,51,.02) 60%,transparent)}
+
+.rank-cell{width:80px}
+.rank-badge{width:38px;height:38px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;font-size:14px;color:var(--muted);background:var(--surface);border:1px solid var(--line);position:relative;transition:all .4s}
+tbody tr:hover .rank-badge{transform:scale(1.15) rotate(-5deg)}
+.rank-badge.g1{background:linear-gradient(135deg,rgba(224,175,104,.3),rgba(224,175,104,.1));border-color:rgba(224,175,104,.6);color:var(--gold);box-shadow:0 0 24px -6px rgba(224,175,104,.8);animation:rankShine 3s ease-in-out infinite}
+@keyframes rankShine{0%,100%{box-shadow:0 0 24px -6px rgba(224,175,104,.8)}50%{box-shadow:0 0 40px -4px rgba(224,175,104,1)}}
+.rank-badge.g2{background:linear-gradient(135deg,rgba(168,179,192,.22),rgba(168,179,192,.06));border-color:rgba(168,179,192,.5);color:#c8d0d8;box-shadow:0 0 18px -6px rgba(168,179,192,.6)}
+.rank-badge.g3{background:linear-gradient(135deg,rgba(184,115,51,.25),rgba(184,115,51,.08));border-color:rgba(184,115,51,.55);color:#d4945c;box-shadow:0 0 18px -6px rgba(184,115,51,.6)}
+.rank-medal{position:absolute;top:-8px;right:-8px;font-size:15px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));animation:medalFloat 3s ease-in-out infinite}
+@keyframes medalFloat{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-3px) rotate(8deg)}}
+
+.stu-cell{display:flex;align-items:center;gap:12px;text-align:left;min-width:230px;padding-left:6px}
+.stu-avatar{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-weight:700;color:#fff;font-size:16px;flex-shrink:0;position:relative;overflow:hidden;transition:all .4s}
+.stu-avatar::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent 50%)}
+tbody tr:hover .stu-avatar{transform:scale(1.15) rotate(-6deg);box-shadow:0 8px 20px -6px rgba(0,0,0,.5)}
+.stu-info{min-width:0;flex:1}
+.stu-name{font-weight:600;color:var(--text);font-size:14px;display:flex;align-items:center;gap:7px}
+tbody tr:hover .stu-name{color:var(--cyan);text-shadow:0 0 15px rgba(126,224,247,.6)}
+.stu-tag{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px}
+.stu-sub{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+
+.score-cell{display:flex;flex-direction:column;align-items:center;gap:2px;position:relative}
+.score-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 13px;border-radius:8px;min-width:74px;justify-content:center;background:var(--surface);border:1px solid var(--line);cursor:pointer;transition:all .3s;user-select:none;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--faint)}
+.score-btn:hover{border-color:var(--blue);background:var(--surface-2);color:var(--text-2);transform:translateY(-3px) scale(1.08);box-shadow:0 10px 20px -8px rgba(122,162,247,.5)}
+.score-btn:active{transform:scale(.92)}
+.score-btn.on{background:rgba(122,162,247,.12);border-color:rgba(122,162,247,.45);color:var(--blue);box-shadow:0 0 18px -4px rgba(122,162,247,.6)}
+.score-btn.on .cnt{color:var(--blue);text-shadow:0 0 14px rgba(122,162,247,.8)}
+.score-btn .cnt{font-family:var(--mono);font-size:14px;font-weight:800;min-width:14px;color:var(--faint)}
+.score-btn .ic{font-size:13px;opacity:.65}
+.score-btn.pulse{animation:scorePulse .5s}
+@keyframes scorePulse{0%{transform:scale(1)}40%{transform:scale(1.3);box-shadow:0 0 40px rgba(122,162,247,.9)}100%{transform:scale(1)}}
+.score-minus{border:none;background:none;color:var(--faint);cursor:pointer;font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:5px;font-weight:700;opacity:0;transition:all .25s}
+.score-cell:hover .score-minus{opacity:1}
+.score-minus:hover{background:rgba(247,118,142,.15);color:var(--red)}
+
+.total-cell{font-family:var(--mono);font-size:21px;font-weight:800;letter-spacing:-.03em;color:var(--gold);text-shadow:0 0 20px rgba(224,175,104,.3);transition:all .35s;display:inline-block}
+tbody tr:hover .total-cell{transform:scale(1.15);text-shadow:0 0 30px rgba(224,175,104,.8)}
+.total-cell small{font-size:11px;font-weight:600;color:var(--muted);margin-left:3px;text-shadow:none}
+
+.pct-cell{min-width:100px}
+.pct-bar{height:4px;background:var(--surface-2);border-radius:100px;overflow:hidden;max-width:80px;margin:0 auto 5px;border:1px solid var(--line);transition:all .35s}
+tbody tr:hover .pct-bar{height:6px}
+.pct-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--blue),var(--purple));box-shadow:0 0 10px rgba(122,162,247,.6);transition:width .6s}
+.pct-text{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:600}
+
+.row-act{display:flex;gap:4px;justify-content:center}
+.icon-btn{width:29px;height:29px;border-radius:7px;border:1px solid var(--line);background:var(--surface);cursor:pointer;color:var(--muted);display:inline-flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;transition:all .3s}
+.icon-btn:hover{border-color:var(--blue);color:var(--blue);background:rgba(122,162,247,.1);transform:scale(1.2) rotate(-8deg)}
+.icon-btn.star.on{background:rgba(224,175,104,.15);border-color:rgba(224,175,104,.55);color:var(--gold);box-shadow:0 0 14px -4px rgba(224,175,104,.6)}
+
+.empty-state{padding:90px 20px;text-align:center;color:var(--muted);font-family:var(--mono);line-height:2;font-size:13.5px}
+.empty-state .icon{font-size:44px;margin-bottom:16px;opacity:.15;animation:emptyFloat 3s ease-in-out infinite;display:inline-block}
+@keyframes emptyFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px) rotate(10deg)}}
+.empty-state b{color:var(--blue)}
+
+.shop-header{padding:38px 46px 28px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(224,175,104,.04),transparent 70%);position:relative;overflow:hidden}
+.shop-header::before{content:'';position:absolute;top:-50%;right:-20%;width:60%;height:200%;background:radial-gradient(circle,rgba(224,175,104,.1),transparent 60%);animation:shopGlow 8s ease-in-out infinite;pointer-events:none}
+@keyframes shopGlow{0%,100%{transform:translate(0,0) scale(1);opacity:.6}50%{transform:translate(-5%,5%) scale(1.15);opacity:1}}
+.shop-header .hero-tag{background:rgba(224,175,104,.08);border-color:rgba(224,175,104,.25);color:var(--gold);margin-bottom:18px;position:relative;z-index:1}
+.shop-header h2{font-family:var(--mono);font-size:34px;font-weight:700;letter-spacing:-.01em;color:var(--text);line-height:1.15;position:relative;z-index:1}
+.shop-header h2 .hash{color:var(--faint);font-weight:400}
+.shop-header h2 .hl{background:linear-gradient(135deg,var(--gold),var(--purple) 40%,var(--blue) 80%,var(--gold));background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:hlShift 6s ease-in-out infinite}
+.shop-header p{margin-top:14px;font-size:14px;color:var(--text-2);line-height:1.8;max-width:680px;position:relative;z-index:1}
+.shop-header p .highlight{color:var(--gold);font-weight:700;font-family:var(--mono)}
+.shop-user{padding:18px 22px;border-bottom:1px solid var(--line);background:rgba(22,27,34,.6);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.shop-user .lbl{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.06em;white-space:nowrap;font-weight:600}
+.shop-user select{flex:1;min-width:240px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:11px 14px;font-size:13.5px;font-family:inherit;outline:none;cursor:pointer;transition:all .3s}
+.shop-user select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(224,175,104,.15)}
+.shop-balance{display:flex;gap:8px;flex-wrap:wrap}
+.bal{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 16px;min-width:88px;text-align:center;transition:all .35s}
+.bal:hover{border-color:var(--blue);background:var(--surface-2);transform:translateY(-4px) scale(1.08)}
+.bal .n{font-family:var(--mono);font-size:18px;font-weight:800;line-height:1;color:var(--blue);letter-spacing:-.02em}
+.bal.spent .n{color:var(--purple)}
+.bal.avail .n{color:var(--gold)}
+.bal .l{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-top:6px;letter-spacing:.06em}
+.shop-grid{padding:22px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;border-bottom:1px solid var(--line)}
+.product{background:rgba(22,27,34,.85);border:1px solid var(--line);border-radius:12px;padding:16px;display:flex;flex-direction:column;transition:all .4s;position:relative;overflow:hidden}
+.product:hover{border-color:rgba(224,175,104,.4);transform:translateY(-8px) scale(1.02);box-shadow:0 32px 64px -24px rgba(224,175,104,.4)}
+.product-img{width:100%;aspect-ratio:1/1;border-radius:10px;background:linear-gradient(135deg,var(--panel),var(--surface-2));border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:64px;margin-bottom:14px;overflow:hidden;position:relative}
+.product-img img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+.product:hover .product-img img{transform:scale(1.12)}
+.product-badge{position:absolute;top:8px;right:8px;background:rgba(8,9,13,.85);border-radius:6px;padding:3px 10px;font-family:var(--mono);font-size:10.5px;font-weight:700;color:var(--gold);border:1px solid rgba(224,175,104,.3)}
+.product-badge.out{color:var(--muted);border-color:var(--line)}
+.product-name{font-family:var(--mono);font-size:14px;font-weight:600;color:var(--text);margin-bottom:6px}
+.product-desc{font-size:12px;color:var(--muted);margin-bottom:14px;flex:1;line-height:1.65;min-height:32px}
+.product-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;padding-top:12px;border-top:1px solid var(--line)}
+.product-pts{font-family:var(--mono);font-size:19px;font-weight:800;color:var(--gold);text-shadow:0 0 20px rgba(224,175,104,.4)}
+.product-pts small{font-size:10.5px;color:var(--muted);margin-left:3px}
+.product-stock{font-family:var(--mono);font-size:11px;color:var(--muted);font-weight:600}
+.product-stock b{color:var(--text-2);font-weight:800}
+.product-stock.out b{color:var(--red)}
+.redeem-btn{width:100%;border:1px solid var(--blue-2);border-radius:8px;padding:11px;background:linear-gradient(180deg,rgba(122,162,247,.15),rgba(122,162,247,.08));color:var(--blue);font-family:var(--mono);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.06em;transition:all .35s}
+.redeem-btn:hover:not(:disabled){background:linear-gradient(180deg,rgba(122,162,247,.3),rgba(122,162,247,.16));border-color:var(--blue);box-shadow:0 0 30px -6px rgba(122,162,247,.8);transform:translateY(-3px)}
+.redeem-btn:disabled{background:var(--surface-2);color:var(--faint);border-color:var(--line);cursor:not-allowed}
+.redeem-log{padding:22px}
+.redeem-log h3{font-family:var(--mono);font-size:14.5px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:12px;color:var(--text)}
+.redeem-log h3 .cnt{font-family:var(--mono);font-size:11.5px;color:var(--muted);padding:3px 10px;background:var(--surface);border-radius:100px;border:1px solid var(--line)}
+.redeem-log h3 .spacer{flex:1}
+.log-item{display:flex;justify-content:space-between;align-items:center;padding:13px 12px;border-bottom:1px solid var(--line);font-size:13.5px;gap:12px;flex-wrap:wrap;border-radius:8px;margin:0 -12px;transition:all .3s}
+.log-item:hover{background:rgba(122,162,247,.06);transform:translateX(6px)}
+.log-item:last-child{border-bottom:none}
+.log-item .who{font-family:var(--mono);font-weight:600;color:var(--text)}
+.log-item .who .tag{font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-left:8px}
+.log-item .what{color:var(--gold);font-weight:700;font-family:var(--mono);font-size:13px}
+.log-item .when{font-family:var(--mono);font-size:11.5px;color:var(--faint)}
+.log-empty{text-align:center;color:var(--faint);padding:32px;font-family:var(--mono);font-size:13px}
+
+.foot{text-align:center;font-family:var(--mono);font-size:12px;color:var(--muted);padding:20px 22px;border-top:1px solid var(--line);background:rgba(22,27,34,.7);letter-spacing:.04em}
+
+.parent-window{background:rgba(13,17,23,.85);backdrop-filter:blur(24px);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 40px 100px -40px rgba(0,0,0,.8);max-width:800px;margin:0 auto;position:relative}
+.parent-hero{padding:40px 32px 34px;text-align:center;border-bottom:1px solid var(--line);background:radial-gradient(600px 300px at 50% 0%,rgba(122,162,247,.12),transparent 60%),var(--surface);position:relative}
+.parent-hero h1{font-family:var(--mono);font-size:28px;font-weight:700;letter-spacing:-.01em;color:var(--text)}
+.parent-hero h1 .hl{background:linear-gradient(135deg,var(--blue),var(--purple) 40%,var(--gold) 80%,var(--blue));background-size:300% 300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:hlShift 6s ease-in-out infinite}
+.parent-hero p{color:var(--muted);margin-top:12px;font-size:13.5px;letter-spacing:.04em}
+.input-card{padding:48px 32px;text-align:center}
+.input-card h2{font-family:var(--mono);font-size:20px;font-weight:700;margin-bottom:12px;color:var(--text)}
+.input-card p{color:var(--muted);font-size:13.5px;margin-bottom:28px;line-height:1.7}
+.input-card input{width:100%;max-width:360px;margin:0 auto 14px;display:block;background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:9px;padding:14px 18px;font-size:14.5px;outline:none;text-align:center;transition:all .3s;font-family:inherit}
+.input-card input:focus{border-color:var(--blue);background:#0a0e14;box-shadow:0 0 0 3px rgba(122,162,247,.15)}
+.input-card button{width:100%;max-width:360px;margin:0 auto;display:block;background:linear-gradient(135deg,var(--blue),var(--purple));color:#0a0e14;border:none;border-radius:9px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;letter-spacing:.06em;transition:all .35s;font-family:inherit;box-shadow:0 8px 24px -10px rgba(122,162,247,.8)}
+.input-card button:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 20px 40px -12px rgba(122,162,247,1)}
+.query-tip{margin-top:18px;font-size:13px;color:var(--red);min-height:16px;line-height:1.6;font-family:var(--mono)}
+.report{padding:28px}
+.report-head{display:flex;align-items:center;gap:16px;padding-bottom:22px;border-bottom:1px solid var(--line)}
+.report-avatar{width:58px;height:58px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#0a0e14;font-family:var(--mono);font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 10px 30px -10px rgba(122,162,247,.8);animation:avatarGlow 3s ease-in-out infinite}
+@keyframes avatarGlow{0%,100%{box-shadow:0 10px 30px -10px rgba(122,162,247,.8)}50%{box-shadow:0 10px 40px -8px rgba(122,162,247,1),0 0 30px -8px rgba(157,124,216,.7)}}
+.report-head h2{font-family:var(--mono);font-size:20px;font-weight:700;color:var(--text)}
+.report-head p{color:var(--muted);font-size:12.5px;margin-top:5px}
+.big-score{text-align:center;padding:30px 0 26px}
+.score-num{font-family:var(--mono);font-size:66px;font-weight:800;line-height:1;letter-spacing:-.04em;color:var(--gold);text-shadow:0 0 40px rgba(224,175,104,.5);animation:scoreGlow 4s ease-in-out infinite;display:inline-block}
+@keyframes scoreGlow{0%,100%{text-shadow:0 0 40px rgba(224,175,104,.5)}50%{text-shadow:0 0 60px rgba(224,175,104,.9),0 0 30px rgba(224,175,104,.5)}}
+.score-num span{font-size:21px;color:var(--muted);font-weight:600;margin-left:6px;text-shadow:none}
+.score-label{font-family:var(--mono);color:var(--muted);font-size:12px;margin-top:10px;letter-spacing:.12em}
+.score-progress{background:var(--surface-2);border-radius:100px;height:6px;margin:22px auto 16px;max-width:420px;overflow:hidden;border:1px solid var(--line)}
+.score-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--blue),var(--purple),var(--gold));background-size:200% 100%;box-shadow:0 0 16px rgba(122,162,247,.7);transition:width .8s;animation:fillShift 4s linear infinite}
+@keyframes fillShift{to{background-position:200% 0}}
+.score-meta{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px;color:var(--text-2);font-weight:600}
+.score-meta span{padding:6px 14px;background:var(--surface);border:1px solid var(--line);border-radius:100px;transition:all .35s}
+.score-meta span:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-3px) scale(1.1)}
+.week-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 22px;margin-top:18px;position:relative;overflow:hidden;transition:all .35s}
+.week-card:hover{border-color:rgba(122,162,247,.3);transform:translateY(-2px);box-shadow:0 12px 28px -12px rgba(122,162,247,.4)}
+.week-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--blue),var(--purple))}
+.week-title{font-family:var(--mono);font-weight:700;color:var(--text);margin-bottom:14px;font-size:14.5px;display:flex;justify-content:space-between;align-items:center}
+.week-title .total{font-size:12.5px;color:var(--gold);font-weight:800;letter-spacing:.04em}
+.week-items{display:grid;gap:8px}
+.item-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13.5px;color:var(--muted);padding:9px 12px;background:var(--panel);border-radius:6px;border:1px solid transparent;transition:all .35s}
+.item-row.on{color:var(--text-2);background:rgba(122,162,247,.06);border-color:rgba(122,162,247,.2)}
+.item-row b{color:var(--faint);font-weight:700}
+.item-row.on b{color:var(--blue);text-shadow:0 0 10px rgba(122,162,247,.6)}
+.week-total{border-top:1px dashed var(--line);margin-top:14px;padding-top:14px;display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+.week-total b{color:var(--gold);font-size:21px;font-weight:800;letter-spacing:-.02em;text-shadow:0 0 20px rgba(224,175,104,.4)}
+.rival-tip{background:rgba(157,124,216,.08);border:1px solid rgba(157,124,216,.25);border-radius:10px;padding:13px 16px;margin-top:16px;font-family:var(--mono);font-size:12.5px;color:var(--text-2);text-align:center;line-height:1.7}
+.rival-tip b{color:var(--purple)}
+.parent-shop{margin-top:24px;padding-top:22px;border-top:1px dashed var(--line)}
+.parent-shop h3{font-family:var(--mono);font-size:15px;font-weight:700;margin-bottom:8px;color:var(--text);display:flex;align-items:center;gap:10px}
+.parent-shop h3 span{font-family:var(--mono);font-size:11px;color:var(--muted);padding:3px 10px;background:var(--surface);border:1px solid var(--line);border-radius:100px}
+.parent-shop .sub{font-size:12.5px;color:var(--muted);margin-bottom:16px;line-height:1.7}
+.parent-shop .sub b{color:var(--gold);font-weight:800}
+.parent-shop .shop-grid{padding:0;border:none;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:10px}
+.parent-shop .product{padding:12px}
+.parent-shop .product-img{font-size:40px;margin-bottom:10px;border-radius:8px}
+.parent-shop .product-name{font-size:12.5px}
+.parent-shop .product-desc{font-size:10.5px;min-height:auto;margin-bottom:10px;line-height:1.5}
+.parent-shop .product-pts{font-size:15px}
+.parent-shop .product-stock{font-size:10px}
+.parent-shop .redeem-btn{font-size:11px;padding:8px;cursor:default}
+.parent-shop .product-meta{padding-top:8px;margin-bottom:8px}
+.report-footer{text-align:center;padding:24px 20px 8px;font-family:var(--mono);font-size:12px;color:var(--muted);line-height:1.9;letter-spacing:.04em}
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:var(--surface);color:var(--text-2);border:1px solid var(--line);border-radius:8px;padding:9px 16px;cursor:pointer;font-family:var(--mono);font-size:12.5px;transition:all .35s;margin-bottom:14px}
+.back-btn:hover{border-color:var(--blue);color:var(--blue);transform:translateX(-6px) scale(1.05)}
+
+.link-modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:24px}
+.link-modal.show{display:flex;animation:modalIn .3s}
+@keyframes modalIn{from{opacity:0}to{opacity:1}}
+.link-card{background:rgba(13,17,23,.98);border:1px solid var(--line-2);border-radius:18px;max-width:680px;width:100%;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 100px -20px rgba(0,0,0,.9),0 0 80px -10px rgba(126,231,135,.35);animation:cardIn .35s cubic-bezier(.16,1,.3,1)}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.94)}to{opacity:1;transform:none}}
+.link-head{padding:22px 26px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px}
+.link-head .ic{width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,rgba(126,231,135,.25),rgba(126,224,247,.2));border:1px solid rgba(126,231,135,.4);display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 0 24px -6px rgba(126,231,135,.7)}
+.link-head h3{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--text)}
+.link-head h3 .hl{background:linear-gradient(135deg,var(--green),var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;font-style:italic}
+.link-body{padding:22px 26px;overflow-y:auto;flex:1}
+.link-info{background:linear-gradient(135deg,rgba(126,231,135,.08),rgba(126,224,247,.06));border:1px solid rgba(126,231,135,.3);border-radius:12px;padding:14px 18px;margin-bottom:16px}
+.link-info .row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:13px;padding:5px 0;gap:12px;flex-wrap:wrap}
+.link-info .row .k{color:var(--muted)}
+.link-info .row .v{color:var(--green);font-weight:700}
+.link-url-box{background:#0a0e14;border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px;position:relative}
+.link-url-box .url{font-family:var(--mono);font-size:11.5px;color:var(--cyan);word-break:break-all;line-height:1.7;max-height:180px;overflow-y:auto;padding-right:8px}
+.link-url-box .url::-webkit-scrollbar{width:6px}
+.link-url-box .url::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}
+.link-actions{display:flex;gap:10px;flex-wrap:wrap}
+.link-actions .btn{flex:1;min-width:140px;justify-content:center;padding:12px 18px}
+.link-tips{font-size:12px;color:var(--muted);line-height:1.8;margin-top:14px;padding:12px 16px;background:rgba(22,27,34,.6);border-radius:10px;border-left:3px solid var(--blue)}
+.link-tips b{color:var(--blue)}
+
+@media(max-width:640px){
+  body{padding:14px 10px}
+  .hero{padding:28px 22px 24px}
+  .hero h1{font-size:26px}
+  .rule{padding:10px 16px;font-size:13.5px}
+  .rule .pts{font-size:15px;padding-left:10px}
+  .ov{padding:16px 18px}
+  .ov .v{font-size:24px}
+  .tab{padding:13px 18px;font-size:13px}
+  .toolbar{padding:12px 14px}
+  .board-head{padding:16px 18px 14px}
+  .board-title{font-size:18px}
+  .board-subtitle{padding-left:0;font-size:11.5px}
+  .shop-header{padding:26px 22px 22px}
+  .shop-header h2{font-size:24px}
+  .score-num{font-size:50px}
+  .report{padding:20px}
+  .shop-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .parent-shop .shop-grid{grid-template-columns:repeat(2,1fr)}
+  .window-bar{padding:10px 14px}
+  .win-title{font-size:11px}
+  .link-actions .btn{min-width:100%}
+}
+</style>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+
+<!-- 生成链接弹窗 -->
+<div class="link-modal" id="linkModal">
+  <div class="link-card">
+    <div class="link-head">
+      <div class="ic">🔗</div>
+      <h3>家长群 <span class="hl">查询链接</span></h3>
+    </div>
+    <div class="link-body">
+      <div class="link-info" id="linkInfo"></div>
+      <div class="link-url-box">
+        <div class="url" id="linkUrl"></div>
+      </div>
+      <div class="link-actions">
+        <button class="btn share" id="copyLinkBtn">📋 复制链接</button>
+        <button class="btn" id="closeLinkBtn">关闭</button>
+      </div>
+      <div class="link-tips">
+        <b>使用方法：</b><br>
+        1. 复制这条链接，发到家长群<br>
+        2. 家长点开后，输入孩子姓名即可查看积分<br>
+        3. 每次更新积分后，重新生成一条新链接发群即可<br>
+        <br>
+        <b>提示：</b>这条链接里已包含当前所有学生的积分数据，家长不需要额外操作，打开即可查询。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 老师端 -->
+<div id="teacherApp" class="wrap" style="display:none">
+  <div class="window">
+    <div class="window-bar">
+      <span class="dot dot-r"></span>
+      <span class="dot dot-y"></span>
+      <span class="dot dot-g"></span>
+      <span class="win-title"><span class="path">编程猫9月校区 / </span><span class="file">昕言班积分榜</span></span>
+      <span class="win-status">已连接</span>
+    </div>
+
+    <div class="hero">
+      <div class="hero-tag"><span class="br">//</span> 编程猫 · 9月校区 · 昕言班</div>
+      <h1><span class="hash"># </span>昕言班<span class="hl">积分榜单</span></h1>
+      <p class="hero-sub">25 周课程 · 满分 <code>450</code> 分 · 累计积分兑换心仪好礼</p>
+      <div class="rules" id="heroRules"></div>
+    </div>
+
+    <div class="overview" id="overview"></div>
+
+    <div class="tabs">
+      <button class="tab active" data-view="rank"><span class="ic">◆</span> 校区总榜</button>
+      <button class="tab shop" data-view="shop"><span class="ic">◆</span> 积分商城</button>
+    </div>
+
+    <div id="rankView">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <input type="search" id="search" placeholder="搜索学生 · 支持多个名字批量查询" autocomplete="off">
+          <button class="search-clear" id="searchClear">×</button>
+          <span class="search-badge" id="searchBadge"></span>
+        </div>
+        <div class="dd-wrap">
+          <button class="btn" id="ddBtn">⚙ 批量操作</button>
+          <div class="dd-menu" id="ddMenu">
+            <div class="dd-label">对当前筛选结果操作</div>
+            <button class="dd-item" id="fillAllBtn"><span class="ic">+</span><span>每项积分 +1（共 +18 分/人）</span></button>
+            <button class="dd-item" id="clearAllBtn"><span class="ic">−</span><span>清空所有积分</span></button>
+          </div>
+        </div>
+        <button class="btn share" id="genLinkBtn">🔗 生成家长群链接</button>
+        <button class="btn" id="exportBtn">↓ 导出 CSV</button>
+        <button class="btn danger" id="resetBtn">清空重置</button>
+      </div>
+
+      <div class="board-head">
+        <div class="board-title-block">
+          <div class="board-title"><span class="icon">🏆</span><span>编程猫9月校区 · 校区总榜</span></div>
+          <div class="board-subtitle">昕言班全体学员 <span class="dot-sep">·</span> 累计积分实时排名</div>
+        </div>
+        <div class="board-count" id="boardCount">— 位学生</div>
+      </div>
+
+      <div class="tbl-scroll"><table id="table"></table></div>
+    </div>
+
+    <div id="shopView" style="display:none">
+      <div class="shop-header">
+        <div class="hero-tag"><span class="br">//</span> 积分商城</div>
+        <h2><span class="hash"># </span>兑换<span class="hl">你的奖励</span></h2>
+        <p>用累计积分兑换心仪礼物 · <span class="highlight">最低 300 分起兑</span></p>
+      </div>
+      <div class="shop-user">
+        <span class="lbl">选择学生</span>
+        <select id="shopStudent"></select>
+        <div class="shop-balance" id="shopBalance"></div>
+      </div>
+      <div class="shop-grid" id="shopGrid"></div>
+      <div class="redeem-log">
+        <h3>兑换记录 <span class="cnt" id="logCount"></span>
+          <span class="spacer"></span>
+          <button class="btn" id="clearLogBtn" style="font-size:11.5px;padding:7px 14px">清空记录</button>
+        </h3>
+        <div id="redeemLogList"></div>
+      </div>
+    </div>
+
+    <div class="foot">编程猫9月校区 · 昕言班专属积分榜单</div>
+  </div>
+</div>
+
+<!-- 家长端 -->
+<div id="parentApp" class="wrap" style="display:none">
+  <div class="parent-window">
+    <div class="window-bar">
+      <span class="dot dot-r"></span>
+      <span class="dot dot-y"></span>
+      <span class="dot dot-g"></span>
+      <span class="win-title"><span class="path">编程猫9月校区 / </span><span class="file">学生积分报告</span></span>
+      <span class="win-status">已连接</span>
+    </div>
+    <div class="parent-hero">
+      <h1>编程猫 <span class="hl">9月校区</span></h1>
+      <p>// 昕言班专属积分榜单 · 每一份努力都算数</p>
+    </div>
+    <div id="parentInput" style="display:none">
+      <div class="input-card">
+        <h2># 查询孩子的积分</h2>
+        <p>请输入孩子姓名，查看专属成长报告</p>
+        <input id="parentName" placeholder="请输入孩子姓名" autocomplete="off">
+        <button id="queryBtn">立即查询</button>
+        <div class="query-tip" id="queryTip"></div>
+      </div>
+    </div>
+    <div id="parentReport" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+/* ===== 动态背景 ===== */
+(function initBg(){
+  const canvas = document.getElementById('bgCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W=0,H=0,particles=[],shootingStars=[],orbs=[];
+  const COLORS=['122,162,247','157,124,216','224,175,104','126,231,135','126,224,247','240,160,208'];
+  function resize(){
+    W = canvas.width = window.innerWidth * devicePixelRatio;
+    H = canvas.height = window.innerHeight * devicePixelRatio;
+    canvas.style.width = window.innerWidth+'px';
+    canvas.style.height = window.innerHeight+'px';
+    ctx.setTransform(1,0,0,1,0,0); ctx.scale(devicePixelRatio,devicePixelRatio);
+    W=window.innerWidth; H=window.innerHeight;
+    initParticles(); initOrbs();
+  }
+  function initParticles(){
+    particles=[];
+    const count = Math.min(100, Math.floor(W*H/16000));
+    for(let i=0;i<count;i++){
+      particles.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,r:Math.random()*1.8+.3,a:Math.random()*.5+.15,twinkle:Math.random()*Math.PI*2,twinkleSpeed:Math.random()*.025+.012,color:COLORS[Math.floor(Math.random()*COLORS.length)]});
+    }
+  }
+  function initOrbs(){
+    orbs=[];
+    for(let i=0;i<6;i++){
+      orbs.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*.35,vy:(Math.random()-.5)*.35,r:200+Math.random()*200,color:COLORS[i%COLORS.length],phase:Math.random()*Math.PI*2,phaseSpeed:.005+Math.random()*.01});
+    }
+  }
+  function spawnShootingStar(){
+    shootingStars.push({x:Math.random()*W*.8,y:Math.random()*H*.3,vx:3+Math.random()*2,vy:1.5+Math.random()*1,len:80+Math.random()*60,life:0,maxLife:90,color:COLORS[Math.floor(Math.random()*COLORS.length)]});
+  }
+  let lastShoot = 0;
+  function draw(t){
+    ctx.clearRect(0,0,W,H);
+    for(const o of orbs){
+      o.x+=o.vx; o.y+=o.vy; o.phase+=o.phaseSpeed;
+      if(o.x<-o.r) o.x=W+o.r; if(o.x>W+o.r) o.x=-o.r;
+      if(o.y<-o.r) o.y=H+o.r; if(o.y>H+o.r) o.y=-o.r;
+      const pulse = .7+Math.sin(o.phase)*.3;
+      const grad = ctx.createRadialGradient(o.x,o.y,0,o.x,o.y,o.r*pulse);
+      grad.addColorStop(0,`rgba(${o.color},${.06*pulse})`);
+      grad.addColorStop(.5,`rgba(${o.color},${.03*pulse})`);
+      grad.addColorStop(1,`rgba(${o.color},0)`);
+      ctx.fillStyle=grad; ctx.fillRect(o.x-o.r*pulse,o.y-o.r*pulse,o.r*pulse*2,o.r*pulse*2);
+    }
+    for(const p of particles){
+      p.x+=p.vx; p.y+=p.vy; p.twinkle+=p.twinkleSpeed;
+      if(p.x<-10) p.x=W+10; if(p.x>W+10) p.x=-10;
+      if(p.y<-10) p.y=H+10; if(p.y>H+10) p.y=-10;
+      const alpha = p.a*(.6+Math.sin(p.twinkle)*.4);
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.color},${alpha})`; ctx.fill();
+      if(p.r>1.3){
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r*4,0,Math.PI*2);
+        ctx.fillStyle=`rgba(${p.color},${alpha*.1})`; ctx.fill();
+      }
+    }
+    ctx.lineWidth=.5;
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const p1=particles[i],p2=particles[j];
+        const dx=p1.x-p2.x, dy=p1.y-p2.y, dist=dx*dx+dy*dy;
+        if(dist<14000){
+          const alpha = (1-dist/14000)*.09;
+          ctx.strokeStyle=`rgba(122,162,247,${alpha})`;
+          ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+        }
+      }
+    }
+    if(t-lastShoot > 3200+Math.random()*4000){ spawnShootingStar(); lastShoot=t; }
+    for(let i=shootingStars.length-1;i>=0;i--){
+      const s=shootingStars[i];
+      s.x+=s.vx; s.y+=s.vy; s.life++;
+      const fade = 1-s.life/s.maxLife;
+      if(fade<=0){ shootingStars.splice(i,1); continue; }
+      const grad = ctx.createLinearGradient(s.x,s.y,s.x-s.vx*s.len/6,s.y-s.vy*s.len/6);
+      grad.addColorStop(0,`rgba(${s.color},${fade})`);
+      grad.addColorStop(1,`rgba(${s.color},0)`);
+      ctx.strokeStyle=grad; ctx.lineWidth=1.8; ctx.lineCap='round';
+      ctx.beginPath(); ctx.moveTo(s.x,s.y); ctx.lineTo(s.x-s.vx*s.len/6,s.y-s.vy*s.len/6); ctx.stroke();
+    }
+    requestAnimationFrame(draw);
+  }
+  window.addEventListener('resize', resize);
+  resize(); requestAnimationFrame(draw);
+})();
+
+(function initFloatSparks(){
+  const SPARK_COLORS = ['rgba(122,162,247,.8)','rgba(157,124,216,.8)','rgba(224,175,104,.8)','rgba(126,231,135,.8)','rgba(126,224,247,.8)','rgba(240,160,208,.8)'];
+  for(let i=0;i<24;i++){
+    const spark = document.createElement('div');
+    spark.className = 'float-spark';
+    spark.style.left = (Math.random()*100)+'vw';
+    spark.style.top = (Math.random()*100)+'vh';
+    const c = SPARK_COLORS[Math.floor(Math.random()*SPARK_COLORS.length)];
+    spark.style.background = c;
+    spark.style.boxShadow = '0 0 12px 2px ' + c;
+    spark.style.setProperty('--dur', (10+Math.random()*12)+'s');
+    spark.style.setProperty('--delay', (-Math.random()*12)+'s');
+    document.body.appendChild(spark);
+  }
+})();
+
+/* ===== 特效 ===== */
+function getElCenter(el){ const r = el.getBoundingClientRect(); return { x: r.left+r.width/2, y: r.top+r.height/2 }; }
+function spawnStarBurst(x,y){
+  const STAR_CHARS = ['✦','✧','★','⭐','✨','💫','🌟'];
+  const COLORS = ['#e0af68','#7aa2f7','#9d7cd8','#7ee787','#f7768e','#7ee0f7','#f0a0d0','#ffffff'];
+  const count = 10+Math.floor(Math.random()*4);
+  const halo = document.createElement('div');
+  halo.className = 'halo-burst';
+  halo.style.left = x+'px'; halo.style.top = y+'px';
+  document.body.appendChild(halo); setTimeout(()=>halo.remove(),800);
+  for(let i=0;i<count;i++){
+    const angle = (Math.PI*2/count)*i + Math.random()*.5;
+    const dist = 40+Math.random()*70;
+    const star = document.createElement('div');
+    star.className = 'star-particle';
+    star.textContent = STAR_CHARS[Math.floor(Math.random()*STAR_CHARS.length)];
+    star.style.left = x+'px'; star.style.top = y+'px';
+    star.style.color = COLORS[Math.floor(Math.random()*COLORS.length)];
+    star.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+    star.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+    star.style.setProperty('--rot', (Math.random()*720-360)+'deg');
+    star.style.fontSize = (12+Math.random()*10)+'px';
+    document.body.appendChild(star);
+    setTimeout(()=>star.remove(),1100);
+  }
+}
+function spawnPlusFloat(x,y,pts){
+  const el = document.createElement('div');
+  el.className = 'plus-float'; el.textContent = '+'+pts;
+  el.style.left = x+'px'; el.style.top = y+'px';
+  document.body.appendChild(el); setTimeout(()=>el.remove(),1100);
+}
+function spawnMinusFloat(x,y){
+  const el = document.createElement('div');
+  el.className = 'minus-float'; el.textContent = '− 1';
+  el.style.left = x+'px'; el.style.top = y+'px';
+  document.body.appendChild(el); setTimeout(()=>el.remove(),1000);
+}
+
+/* ===== 数据 ===== */
+const RULES = [
+  {key:'prepare', label:'提前预习', pts:3, icon:'📖'},
+  {key:'live',    label:'直播上座', pts:5, icon:'📺'},
+  {key:'work',    label:'提交作品', pts:4, icon:'📝'},
+  {key:'share',   label:'群内分享', pts:3, icon:'💬'},
+  {key:'ask',     label:'问老师',   pts:3, icon:'❓'},
+];
+const TOTAL_WEEKS = 25;
+const WEEK_MAX = RULES.reduce((s,r)=>s+r.pts,0);
+const FULL_MAX = WEEK_MAX * TOTAL_WEEKS;
+
+const PRODUCTS = [
+  {id:'plant',  name:'好运罐装植物', emoji:'🌱', img:'', pts:300, stock:40, desc:'四叶草/向日葵/草莓/紫罗兰 随机一款'},
+  {id:'heart',  name:'珍藏非洲之心', emoji:'💎', img:'', pts:400, stock:8,  desc:'闪耀黑色水晶 · 珍藏级展示盒装'},
+  {id:'labubu', name:'拉布布盲盒',   emoji:'🧸', img:'', pts:450, stock:2,  desc:'POP MART 前方高能系列 · 潮玩顶流'},
+];
+
+const CLASSES = [
+  {name:'260917期【周四】P09173', short:'周四班', tag:'周四战队', color:'#7aa2f7', bg:'rgba(122,162,247,.12)', emoji:'🌙'},
+  {name:'260918期【周五】P09183', short:'周五班', tag:'周五战队', color:'#9d7cd8', bg:'rgba(157,124,216,.12)', emoji:'✦'},
+  {name:'260919期【周六】P09193', short:'周六班', tag:'周六战队', color:'#e0af68', bg:'rgba(224,175,104,.12)', emoji:'☀'},
+];
+
+const RAW = [
+  [0,'巩壮壮','Jianglily'],[0,'赵鹏程','陶燕'],[0,'白智元','—'],[0,'魏千杰','魏旺最帅本时空最帅'],
+  [0,'游乐豪','游乐豪'],[0,'倪若龄','V'],[0,'于荃','于志军'],[0,'李诗涵','yy'],
+  [0,'田泽轩','彭绮玲'],[0,'谢劲霄','Sherman_谢尔曼'],[0,'温凌峰','猫了个喵～'],[0,'王森仝','风梳雨沐'],
+  [0,'顾宸羽','—'],[0,'杨梓桐','张扬'],[0,'张睿洁','洛淇'],[0,'刘子瑜','🌝璇ཿz'],
+  [0,'王洛斌','—'],[0,'樊沐承','🍭糖儿✌️'],[0,'李宥廷','娜娜13873976700'],[0,'何一乐','雨加'],
+  [0,'韩馨墨','墨墨妈'],[0,'廖峰翊','何巷蓉'],
+  [1,'希希','@心'],[1,'张诗悦','侯瑞清'],[1,'张宸沣','撸妈小仔仔'],[1,'吕雨鸿','王洁 🌺诸城广兴上汽大众'],
+  [1,'曾子安','秋水无痕'],[1,'范亦为','范宇翔'],[1,'刘子煜','静'],[1,'苏济仁','—'],
+  [1,'林子杰','红'],[1,'张轶辰','云间赴月'],[1,'秦梓桐','花🌸'],[1,'盛泊然','smile'],
+  [1,'周胤休','喵不与。'],[1,'李梓美','晴天'],[1,'胡浚洋','杨雅淋'],[1,'茜茜','开运福里小叔包'],
+  [1,'邹梓维','可人怡'],[1,'李跃嵩','WBX'],[1,'虞芷翎','—'],[1,'邹昂珊','(*^ω^*)'],
+  [1,'龚敏媛','同乐同建谭敏'],[1,'尹铭正','铭铭妈妈'],[1,'柯浩钖','清影'],[1,'朱建宇','🐇李木子🍀'],
+  [1,'沛霖','霞-yolanda'],[1,'李虹宇','慧儿'],[1,'王俊博','小猫'],[1,'糖糖','Vicky'],
+  [1,'张羽轩','Zora°'],[1,'张童轩','东林手机店'],[1,'黄晓思','黄晓'],[1,'张海星','小雅'],
+  [1,'过珵兮','Stella'],[1,'崔浩博','湖海'],[1,'林粤晨','海的记忆'],[1,'张芷瑞','50张芷瑞妈妈'],
+  [1,'刘劲杉','杨先凤'],[1,'王梓静','钟菊雅韵'],[1,'安芷萱','人生如戏'],[1,'俊城','—'],
+  [1,'陈柏睿','淡若如初'],[1,'田入予','有祢真甜'],[1,'龚一轩','星辰'],[1,'邓晔锴','平安朱鲜华'],
+  [1,'姚恩泽','蚂蚁 🐜.....'],[1,'李坤阳','红枫'],[1,'万书远','梦想'],[1,'冉帛鑫','大管家装饰～邱玲'],
+  [1,'杨依诺','大知闲闲'],[1,'徐子进','段练'],[1,'盛心妍','Ring.zyy'],[1,'陈奕臣','小小'],
+  [1,'王一鸣','上海旻泉摇床朱丹丹'],[1,'张铭轩','张铭轩'],[1,'李玥涵','—'],[1,'杨文浩','Ling'],
+  [1,'夏浩雄','艳子'],[1,'董林洹','李雨男律师'],[1,'刘浩','娟'],[1,'李林轩','微笑的欧阳'],
+  [1,'姚品杉','风'],[1,'罗泊然','张霞🐰🐑 413'],[1,'舒文山','文海英'],[1,'冉娃娲','张娟'],
+  [1,'梁少铠','燕子'],[1,'李彦霖','兰淇'],[1,'杨昕元','君莉'],[1,'杨登乔','诗玥'],
+  [1,'肖文浩','心死👻 瞬间'],[1,'余皓洋','—'],[1,'叶奕杉','周倩伊'],[1,'况帛希','🍀南💞笙🌸'],
+  [1,'吴瑜岑','y³࿐₊⁺'],[1,'麻雨精','静待花开'],[1,'周一宸','—'],
+  [2,'刘楷瑞','八珍烤鸡店'],[2,'贾晗硕','高高'],[2,'陈瀚宇','含羞草'],[2,'胡锦勋','—'],
+  [2,'薛钧硕','淡定'],[2,'欢欢','—'],[2,'范锡泽','鱼阿金'],[2,'华梓瀚','宝儿'],
+  [2,'贝贝','元宵圆'],[2,'吴凯峰','小蜜峰'],[2,'崔宇涵','移动韩守媛'],[2,'汪霖','多～幸～运'],
+  [2,'陶浩宇','—'],[2,'刘怡辰','谭潭'],[2,'袁嘉骏','袁林森'],[2,'佳凌','—'],
+  [2,'易俊成','卷毛'],[2,'曾宥博','媛来爱莉'],[2,'周于棋','小喻'],[2,'王浩宇','晓风'],
+  [2,'曾力扬','婉萍'],[2,'徐志杰','徐志杰妈妈'],[2,'田鹏','古月【胡】'],[2,'李悦然','一笑而过！'],
+  [2,'张家瑄','Li李'],[2,'陈诗茹','—'],[2,'曾奕兴','招财纳福^_^'],[2,'杨子晨','陈'],
+  [2,'柯涵瑾','—'],[2,'寒松','大项'],[2,'胡一凡','薛庄666超市'],[2,'路博文','A 一切都好'],
+  [2,'王雍钦','—'],[2,'李思璇','向阳而生'],[2,'薛诗蒙','—'],[2,'朱恩帛','微笑的弧度'],
+  [2,'芳芳','姜丁'],[2,'许兴辰','许兴辰'],[2,'罗毅','罗登兵'],[2,'金本喆','Jyc'],
+  [2,'孟子枫','半盏时光'],[2,'王昊宇','🦋꧁ღ丽💗꧂'],[2,'小钟','寒兰秋忆'],[2,'康天泽','郝亚坤17731115633'],
+  [2,'肖钰涵','岁月静好'],[2,'杨邱棋','A邱邱'],[2,'曾宸茜','梦潼'],[2,'余沐泽','余有才'],
+  [2,'陈景然','胡老师｜拿铁女子塑形·产后修复'],[2,'王子淼','紫君'],[2,'喻志雪','—'],[2,'徐梦婕','徐波13452580365'],
+  [2,'姚丹','霍之梅'],[2,'霍宇晨','水仙369'],[2,'盛英宇','—'],[2,'娄经承','张容'],
+  [2,'李芷菡','江敬娣'],[2,'阳卓翰','誉妹儿'],[2,'李阳','Hope525'],[2,'周俊汐','予'],
+  [2,'危懿轩','轩'],[2,'韦俊贤','Wingxu'],[2,'杨骐骏','杨澍律师~坤源衡泰'],[2,'姜仕桐','专业瓷砖美缝'],
+  [2,'李施霖','🍉🍉'],[2,'云芃睿','小小的喷火龙'],[2,'林裕睿','小巫女'],[2,'维涛','娟'],
+  [2,'李承俊','随心'],[2,'闫书语','可🍭可ʸᴬᴺ女士'],[2,'蔡文希','mei梅'],[2,'曹元淇','晶晶'],
+  [2,'何东阳','—'],[2,'王一凯','纤磁纤慧业'],[2,'尤嘉毅','💋小亚💋'],[2,'月梦洁','一笑而过'],
+  [2,'尹泊然','尹以贵13996789496'],[2,'信虹宇','喵~~'],[2,'翁悦庭','🐟 🐬 🐠 🐋 🐳 🦈'],[2,'况泊宇','况彬'],
+  [2,'彭仲毅','轩轩'],[2,'陈韵祺','祺思妙雨'],[2,'何宇轩','何宇轩'],
+];
+
+let fridayCount = 0, saturdayCount = 0;
+const STUDENTS = RAW.map((r,i) => {
+  let mineDefault = true;
+  if (r[0] === 1) { mineDefault = fridayCount < 30; fridayCount++; }
+  else if (r[0] === 2) { mineDefault = saturdayCount < 30; saturdayCount++; }
+  return { id: 's'+i, cls: r[0], name: r[1], nick: r[2] || '—', mineDefault };
+});
+
+const KEY = 'xinyan_rank_v18';
+let state = load();
+function load(){
+  try{
+    const s = JSON.parse(localStorage.getItem(KEY) || '{}');
+    return { belong: s.belong||{}, counts: s.counts||{}, stock: s.stock||{}, redemptions: s.redemptions||[] };
+  }catch(e){ return { belong:{}, counts:{}, stock:{}, redemptions:[] }; }
+}
+function save(){
+  try{
+    const toSave = { belong: state.belong, counts: state.counts, stock: state.stock, redemptions: state.redemptions };
+    localStorage.setItem(KEY, JSON.stringify(toSave));
+  }catch(e){}
+}
+function getCount(sid,k){ return (state.counts[sid] && state.counts[sid][k]) || 0; }
+function setCount(sid,k,v){ if(!state.counts[sid]) state.counts[sid]={}; state.counts[sid][k] = Math.max(0,v); }
+function addCount(sid,k,d){ setCount(sid,k,getCount(sid,k)+d); save(); }
+function totalScore(sid){ let total=0; for(const r of RULES) total += getCount(sid,r.key)*r.pts; return total; }
+function isMine(sid){
+  if(state.belong[sid] !== undefined) return state.belong[sid];
+  const s = STUDENTS.find(x=>x.id===sid);
+  return s ? s.mineDefault : true;
+}
+function getStock(pid){
+  if(state.stock[pid] === undefined){
+    const p = PRODUCTS.find(x=>x.id===pid);
+    return p ? p.stock : 0;
+  }
+  return state.stock[pid];
+}
+function setStock(pid,v){ state.stock[pid] = v; save(); }
+function productPts(pid){ const p = PRODUCTS.find(x=>x.id===pid); return p ? p.pts : 0; }
+function spentScore(sid){
+  if(state.sharedSpent && state.sharedSpent[sid] !== undefined) return state.sharedSpent[sid];
+  return state.redemptions.filter(r=>r.sid===sid).reduce((s,r)=>s+productPts(r.pid),0);
+}
+function availableScore(sid){ return totalScore(sid) - spentScore(sid); }
+function redeem(sid,pid){
+  const p = PRODUCTS.find(x=>x.id===pid);
+  if(!p){ alert('商品不存在'); return; }
+  const s = STUDENTS.find(x=>x.id===sid);
+  if(!s){ alert('请先选择学生'); return; }
+  const stock = getStock(pid);
+  if(stock <= 0){ alert('该商品库存不足'); return; }
+  const avail = availableScore(sid);
+  if(avail < p.pts){ alert(`积分不足！\n\n${s.name} 当前可用 ${avail}，需 ${p.pts} 分`); return; }
+  if(!confirm(`确认为「${s.name}」兑换「${p.name}」？\n\n消耗 ${p.pts} 积分 · 剩余库存 ${stock-1} 件`)) return;
+  const btn = document.querySelector(`.redeem-btn[data-pid="${pid}"]`);
+  if(btn){ const c = getElCenter(btn); spawnStarBurst(c.x,c.y); }
+  state.redemptions.push({ sid, pid, time: new Date().toLocaleString('zh-CN',{hour12:false}).replace(/\//g,'-'), pts: p.pts });
+  setStock(pid, stock-1); save(); render();
+}
+
+let curView = 'rank';
+let kw = '';
+let kws = [];
+let curShopStudent = '';
+
+function parseKeywords(raw){
+  if(!raw) return [];
+  return raw.split(/[\s,，、;；\n\r\t]+/).map(s=>s.trim()).filter(Boolean).map(s=>s.toLowerCase());
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function filtered(){
+  return STUDENTS.filter(s=>{
+    if(kws.length){
+      const text = (s.name + ' ' + s.nick).toLowerCase();
+      if(!kws.some(k => text.includes(k))) return false;
+    }
+    return true;
+  });
+}
+function renderHeroRules(){
+  const el = document.getElementById('heroRules');
+  if(!el) return;
+  el.innerHTML = RULES.map(r=>
+    `<span class="rule"><span class="icon">${r.icon}</span>${r.label}<span class="pts">+${r.pts}</span></span>`
+  ).join('');
+}
+function renderOverview(){
+  const el = document.getElementById('overview');
+  if(!el) return;
+  const list = filtered();
+  const total = list.reduce((s,x)=>s+totalScore(x.id),0);
+  const avg = list.length ? (total/list.length).toFixed(1) : '0.0';
+  const max = list.length ? Math.max(...list.map(x=>totalScore(x.id))) : 0;
+  const spent = list.reduce((s,x)=>s+spentScore(x.id),0);
+  el.innerHTML = `
+    <div class="ov"><div class="k">在榜学生</div><div class="v">${list.length}<small>人</small></div></div>
+    <div class="ov"><div class="k">累计积分</div><div class="v blue">${total}<small>分</small></div></div>
+    <div class="ov"><div class="k">人均积分</div><div class="v purple">${avg}<small>分</small></div></div>
+    <div class="ov"><div class="k">最高分</div><div class="v gold">${max}<small>分</small></div></div>
+    <div class="ov"><div class="k">已消耗积分</div><div class="v blue">${spent}<small>分</small></div></div>
+  `;
+}
+function renderRankTable(){
+  const list = filtered().slice().sort((a,b)=>{
+    const d = totalScore(b.id) - totalScore(a.id);
+    if(d !== 0) return d;
+    return a.name.localeCompare(b.name,'zh');
+  });
+  const bcEl = document.getElementById('boardCount');
+  if(bcEl) bcEl.textContent = `${list.length} 位学生`;
+  const tblEl = document.getElementById('table');
+  if(!tblEl) return;
+  if(!list.length){
+    tblEl.innerHTML = `<tbody><tr><td><div class="empty-state"><div class="icon">◇</div><div>未匹配到学生</div><div><b>可尝试减少关键词</b></div></div></td></tr></tbody>`;
+    return;
+  }
+  const thead = `<thead><tr>
+    <th style="width:80px">排名</th>
+    <th style="text-align:left;min-width:240px">学生</th>
+    ${RULES.map(r=>`<th style="min-width:110px">
+      <div class="head-cell">
+        <div class="head-icon">${r.icon}</div>
+        <div class="head-name">${r.label}</div>
+        <div class="head-pts">+${r.pts}</div>
+        <div class="head-bulk">
+          <button data-bulk="add" data-k="${r.key}" title="全员+1">+1</button>
+          <button class="minus" data-bulk="minus" data-k="${r.key}" title="全员-1">-1</button>
+        </div>
+      </div>
+    </th>`).join('')}
+    <th style="width:100px">总分</th>
+    <th style="width:110px">完成度</th>
+    <th style="width:100px">操作</th>
+  </tr></thead>`;
+  const rows = list.map((s,i)=>{
+    const t = totalScore(s.id);
+    const pct = Math.min(100, Math.round(t / FULL_MAX * 100));
+    const c = CLASSES[s.cls];
+    const mine = isMine(s.id);
+    let rankCls = '', medal = '';
+    if(i===0){ rankCls='g1'; medal='🥇'; }
+    else if(i===1){ rankCls='g2'; medal='🥈'; }
+    else if(i===2){ rankCls='g3'; medal='🥉'; }
+    const rowCls = i===0?'top-1':i===1?'top-2':i===2?'top-3':'';
+    return `<tr class="${rowCls}">
+      <td class="rank-cell"><div class="rank-badge ${rankCls}">${String(i+1).padStart(2,'0')}${medal?`<span class="rank-medal">${medal}</span>`:''}</div></td>
+      <td>
+        <div class="stu-cell">
+          <div class="stu-avatar" style="background:linear-gradient(135deg,${c.color},${shade(c.color,-30)})">${esc(s.name.charAt(0))}</div>
+          <div class="stu-info">
+            <div class="stu-name">${esc(s.name)}<span class="stu-tag" style="background:${c.bg};color:${c.color}">${c.emoji} ${c.short}</span></div>
+            <div class="stu-sub">${esc(s.nick)}</div>
+          </div>
+        </div>
+      </td>
+      ${RULES.map(r=>{
+        const cnt = getCount(s.id, r.key);
+        return `<td><div class="score-cell">
+          <div class="score-btn ${cnt>0?'on':''}" data-sid="${s.id}" data-k="${r.key}"><span class="ic">${r.icon}</span><span class="cnt">${cnt}</span></div>
+          ${cnt>0?`<button class="score-minus" data-sid="${s.id}" data-k="${r.key}">− 减少</button>`:''}
+        </div></td>`;
+      }).join('')}
+      <td><div class="total-cell" data-total-sid="${s.id}">${t}<small>分</small></div></td>
+      <td class="pct-cell"><div class="pct-bar"><div class="pct-fill" style="width:${pct}%"></div></div><div class="pct-text">${pct}%</div></td>
+      <td><div class="row-act">
+        <button class="icon-btn ${mine?'star on':''}" data-mine="${s.id}" title="${mine?'我的学生':'竞争对手'}">${mine?'★':'☆'}</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+  tblEl.innerHTML = thead + `<tbody>${rows}</tbody>`;
+}
+function shade(hex, percent){
+  const num = parseInt(hex.replace('#',''),16);
+  let r=(num>>16)+percent, g=((num>>8)&0xff)+percent, b=(num&0xff)+percent;
+  r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
+  return '#' + ((r<<16)|(g<<8)|b).toString(16).padStart(6,'0');
+}
+function renderShop(){
+  const list = filtered().slice().sort((a,b)=> totalScore(b.id)-totalScore(a.id));
+  const sel = document.getElementById('shopStudent');
+  if(!sel) return;
+  let html = `<option value="">— 请选择学生 —</option>`;
+  list.forEach(s=>{
+    const c = CLASSES[s.cls];
+    html += `<option value="${s.id}" ${curShopStudent===s.id?'selected':''}>${esc(s.name)} · ${c.short} · 可用 ${availableScore(s.id)} 分</option>`;
+  });
+  sel.innerHTML = html;
+  const balBox = document.getElementById('shopBalance');
+  if(balBox){
+    if(curShopStudent){
+      const s = STUDENTS.find(x=>x.id===curShopStudent);
+      if(s){
+        balBox.innerHTML = `
+          <div class="bal"><div class="n">${totalScore(s.id)}</div><div class="l">累计积分</div></div>
+          <div class="bal spent"><div class="n">${spentScore(s.id)}</div><div class="l">已消耗</div></div>
+          <div class="bal avail"><div class="n">${availableScore(s.id)}</div><div class="l">可用积分</div></div>`;
+      } else {
+        balBox.innerHTML = `<div class="bal"><div class="n">—</div><div class="l">请选择</div></div>`;
+      }
+    } else {
+      balBox.innerHTML = `<div class="bal"><div class="n">—</div><div class="l">请选择</div></div>`;
+    }
+  }
+  const grid = document.getElementById('shopGrid');
+  if(grid){
+    grid.innerHTML = PRODUCTS.map(p=>{
+      const stock = getStock(p.id);
+      const out = stock <= 0;
+      const avail = curShopStudent ? availableScore(curShopStudent) : 0;
+      let btnText = '立即兑换', disabled = false;
+      if(out){ btnText = '已售罄'; disabled = true; }
+      else if(!curShopStudent){ btnText = '请先选择学生'; disabled = true; }
+      else if(avail < p.pts){ btnText = `还差 ${p.pts - avail} 分`; disabled = true; }
+      const imgHTML = p.img ? `<img src="${p.img}" alt="${esc(p.name)}" onerror="this.style.display='none';this.parentNode.innerHTML='${p.emoji}'">` : p.emoji;
+      return `<div class="product">
+        <div class="product-img">${imgHTML}<span class="product-badge ${out?'out':''}">${out?'已售罄':'库存 '+stock}</span></div>
+        <div class="product-name">${esc(p.name)}</div>
+        <div class="product-desc">${esc(p.desc)}</div>
+        <div class="product-meta">
+          <div class="product-pts">${p.pts}<small>分</small></div>
+          <div class="product-stock ${out?'out':''}">库存 <b>${stock}</b></div>
+        </div>
+        <button class="redeem-btn" data-pid="${p.id}" ${disabled?'disabled':''}>${btnText}</button>
+      </div>`;
+    }).join('');
+  }
+  const logBox = document.getElementById('redeemLogList');
+  if(logBox){
+    const logs = state.redemptions.slice().reverse();
+    const cnt = document.getElementById('logCount');
+    if(cnt) cnt.textContent = `${logs.length} 条`;
+    if(!logs.length){
+      logBox.innerHTML = `<div class="log-empty">暂无兑换记录</div>`;
+    } else {
+      logBox.innerHTML = logs.map(r=>{
+        const s = STUDENTS.find(x=>x.id===r.sid);
+        const p = PRODUCTS.find(x=>x.id===r.pid);
+        if(!s || !p) return '';
+        const c = CLASSES[s.cls];
+        return `<div class="log-item">
+          <div><span class="who">${esc(s.name)}</span><span class="tag">${c.short}</span></div>
+          <div>兑换了 <span class="what">${p.emoji} ${esc(p.name)}</span> <span style="color:var(--faint);font-size:11.5px">-${r.pts}分</span></div>
+          <div class="when">${r.time}</div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+function render(){
+  const badge = document.getElementById('searchBadge');
+  if(badge){
+    if(kws.length){ badge.textContent = filtered().length + ' 位'; badge.classList.add('show'); }
+    else badge.classList.remove('show');
+  }
+  const sc = document.getElementById('searchClear');
+  if(sc) sc.classList.toggle('show', kw.length > 0);
+  const rankView = document.getElementById('rankView');
+  const shopView = document.getElementById('shopView');
+  if(!rankView || !shopView) return;
+  if(curView === 'shop'){
+    rankView.style.display = 'none';
+    shopView.style.display = 'block';
+    renderShop();
+  } else {
+    rankView.style.display = 'block';
+    shopView.style.display = 'none';
+    renderOverview();
+    renderRankTable();
+  }
+}
+
+/* ============================================================
+   🔗 生成家长群链接（核心功能）
+   把当前所有学生的积分编码进 URL 的 #share= 参数
+   家长打开链接即读取 URL 内的数据，无需服务器
+============================================================ */
+function encodeShareData(){
+  const parts = [];
+  for(let i = 0; i < STUDENTS.length; i++){
+    const s = STUDENTS[i];
+    const counts = RULES.map(r => getCount(s.id, r.key));
+    const spent = spentScore(s.id);
+    if(counts.some(c => c > 0) || spent > 0){
+      parts.push(i + '_' + counts.join('.') + '.' + spent);
+    }
+  }
+  return parts.join('-');
+}
+
+function generateParentLink(){
+  const dataStr = encodeShareData();
+  if(!dataStr){
+    alert('当前还没有任何积分数据。\n\n请先给学生加分后再生成链接。');
+    return;
+  }
+  // 生成干净的 URL（去掉旧的 # 和 ? 参数）
+  const base = location.href.split('#')[0].split('?')[0];
+  const url = base + '#share=' + dataStr;
+  
+  // 显示弹窗
+  showLinkModal(url, dataStr);
+}
+
+function showLinkModal(url, dataStr){
+  // 统计包含的学生数
+  const studentCount = dataStr.split('-').length;
+  
+  document.getElementById('linkInfo').innerHTML = `
+    <div class="row"><span class="k">📅 生成时间</span><span class="v">${new Date().toLocaleString('zh-CN',{hour12:false})}</span></div>
+    <div class="row"><span class="k">👥 包含学生</span><span class="v">${studentCount} 位（有积分记录）</span></div>
+    <div class="row"><span class="k">📏 链接长度</span><span class="v">${url.length} 字符</span></div>
+  `;
+  document.getElementById('linkUrl').textContent = url;
+  document.getElementById('linkModal').classList.add('show');
+  
+  // 自动复制
+  copyLinkToClipboard(url);
+}
+
+async function copyLinkToClipboard(url){
+  const btn = document.getElementById('copyLinkBtn');
+  try{
+    await navigator.clipboard.writeText(url);
+    btn.textContent = '✓ 已复制到剪贴板';
+    btn.style.background = 'linear-gradient(135deg,#7ee787,#7ee0f7)';
+    setTimeout(()=>{
+      btn.textContent = '📋 复制链接';
+    }, 2000);
+  }catch(e){
+    // 降级：选中文本
+    const range = document.createRange();
+    range.selectNodeContents(document.getElementById('linkUrl'));
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    btn.textContent = '⚠ 请按 Ctrl+C 复制';
+  }
+}
+
+/* ===== 分享数据解析 ===== */
+function parseShareHash(hashData){
+  state.sharedSpent = {};
+  state.counts = {};
+  state.belong = {};
+  state.redemptions = [];
+  
+  if(!hashData) return 0;
+  
+  let count = 0;
+  const parts = hashData.split('-');
+  for(const part of parts){
+    if(!part) continue;
+    const sepIdx = part.indexOf('_');
+    if(sepIdx < 0) continue;
+    const idxStr = part.slice(0, sepIdx);
+    const valsStr = part.slice(sepIdx + 1);
+    const idx = parseInt(idxStr);
+    if(isNaN(idx) || idx < 0 || idx >= STUDENTS.length) continue;
+    const s = STUDENTS[idx];
+    const vals = valsStr.split('.').map(Number);
+    for(let i = 0; i < RULES.length; i++){
+      if(!state.counts[s.id]) state.counts[s.id] = {};
+      state.counts[s.id][RULES[i].key] = Math.max(0, vals[i] || 0);
+    }
+    if(vals[5] > 0){
+      state.sharedSpent[s.id] = vals[5];
+    }
+    count++;
+  }
+  return count;
+}
+
+/* ===== 家长端 ===== */
+function initParent(){
+  const params = new URLSearchParams(location.search);
+  const d = params.get('d');
+  if(d){
+    // 兼容旧的 ?mode=parent&d=xxx 链接格式
+    const json = b64d(d);
+    if(json){
+      try{
+        const data = JSON.parse(json);
+        renderParentReport(data);
+        return;
+      }catch(e){}
+    }
+  }
+  // 显示搜索框
+  document.getElementById('parentInput').style.display = 'block';
+  const btn = document.getElementById('queryBtn');
+  const input = document.getElementById('parentName');
+  if(btn && !btn.__bound){
+    btn.__bound = true;
+    btn.addEventListener('click', doParentQuery);
+    input.addEventListener('keydown', e=>{ if(e.key === 'Enter') doParentQuery(); });
+  }
+}
+
+function b64d(str){
+  try{
+    str = str.replace(/-/g,'+').replace(/_/g,'/');
+    while(str.length % 4) str += '=';
+    return decodeURIComponent(escape(atob(str)));
+  }catch(e){ return ''; }
+}
+
+function doParentQuery(){
+  const tip = document.getElementById('queryTip');
+  const name = document.getElementById('parentName').value.trim();
+  if(!name){ tip.textContent = '// 请输入孩子姓名'; return; }
+  const matched = STUDENTS.filter(s=> s.name === name || s.name.includes(name));
+  if(!matched.length){
+    tip.innerHTML = '// 未找到该学生<br>请检查姓名是否正确输入';
+    return;
+  }
+  if(matched.length === 1){
+    showParentForStudent(matched[0]);
+    return;
+  }
+  // 多个匹配
+  tip.innerHTML = '// 找到多位同名学生：<br>' +
+    matched.map(s=>`<a href="javascript:void(0)" data-pick="${s.id}" style="display:inline-block;margin:4px;padding:6px 14px;background:rgba(122,162,247,.1);color:#7aa2f7;border-radius:6px;font-size:12px;text-decoration:none;border:1px solid rgba(122,162,247,.3);font-family:var(--mono)">${esc(s.name)}（${CLASSES[s.cls].short}）</a>`).join('');
+  tip.querySelectorAll('[data-pick]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const s = STUDENTS.find(x=>x.id===el.dataset.pick);
+      if(s) showParentForStudent(s);
+    });
+  });
+}
+
+function showParentForStudent(s){
+  const myList = STUDENTS.filter(x=>x.cls===s.cls && isMine(x.id));
+  const sorted = myList.slice().sort((a,b)=>totalScore(b.id)-totalScore(a.id));
+  const rank = sorted.findIndex(x=>x.id===s.id) + 1;
+  const data = { n:s.name, c:s.cls, cnt:{}, r:isMine(s.id)?rank:0, t:isMine(s.id)?myList.length:0, m:isMine(s.id)?1:0,
+    shop: PRODUCTS.map(p=>({id:p.id, s:getStock(p.id)})), spent: spentScore(s.id) };
+  for(const r of RULES) data.cnt[r.key] = getCount(s.id, r.key);
+  renderParentReport(data);
+}
+
+function renderParentReport(data){
+  const c = CLASSES[data.c];
+  let total = 0;
+  for(const r of RULES) total += (data.cnt[r.key] || 0) * r.pts;
+  const spent = data.spent || 0;
+  const avail = total - spent;
+  const pct = Math.min(100, Math.round(total / FULL_MAX * 100));
+  const initial = data.n ? data.n.charAt(0) : '学';
+  const itemsHTML = RULES.map(r=>{
+    const cnt = data.cnt[r.key] || 0;
+    const sub = cnt * r.pts;
+    return `<div class="item-row ${cnt>0?'on':''}"><span>${r.icon} ${r.label} × ${cnt}</span><b>${cnt>0?'+'+sub+' 分':'0 分'}</b></div>`;
+  }).join('');
+  const shopHTML = `
+    <div class="parent-shop">
+      <h3>积分商城 <span>Boutique</span></h3>
+      <div class="sub">累计 ${total} 分 · 已消耗 ${spent} 分 · <b>可用 ${avail} 分</b> · 最低 300 分起兑</div>
+      <div class="shop-grid">
+        ${PRODUCTS.map(p=>{
+          const stock = (data.shop && data.shop.find(x=>x.id===p.id)?.s) ?? p.stock;
+          const out = stock <= 0;
+          const can = !out && avail >= p.pts;
+          let btnText = '已售罄';
+          if(!out) btnText = can ? '✓ 可兑换' : `还差 ${p.pts - avail} 分`;
+          const imgHTML = p.img ? `<img src="${p.img}" alt="${esc(p.name)}" onerror="this.style.display='none';this.parentNode.innerHTML='${p.emoji}'">` : p.emoji;
+          return `<div class="product">
+            <div class="product-img">${imgHTML}<span class="product-badge ${out?'out':''}">${out?'已售罄':'库存 '+stock}</span></div>
+            <div class="product-name">${esc(p.name)}</div>
+            <div class="product-desc">${esc(p.desc)}</div>
+            <div class="product-meta">
+              <div class="product-pts">${p.pts}<small>分</small></div>
+              <div class="product-stock ${out?'out':''}">库存 <b>${stock}</b></div>
+            </div>
+            <button class="redeem-btn" disabled>${btnText}</button>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+  const rivalTip = data.m === 0
+    ? `<div class="rival-tip">⚔ 你正与编程猫9月校区的其他优秀学员同台竞技，<b>加油超越他们！</b></div>` : '';
+  const reportHTML = `
+    <div class="report">
+      <button class="back-btn" id="backBtn">← 查询其他孩子</button>
+      <div class="report-head">
+        <div class="report-avatar">${initial}</div>
+        <div><h2>${esc(data.n)}</h2><p>${c.emoji} ${c.tag} · ${c.name}</p></div>
+      </div>
+      <div class="big-score">
+        <div class="score-num">${total}<span>/ ${FULL_MAX}</span></div>
+        <div class="score-label">累计积分</div>
+        <div class="score-progress"><div class="score-fill" style="width:${pct}%"></div></div>
+        <div class="score-meta">
+          <span>✦ 完成度 ${pct}%</span>
+          <span>可用 ${avail} 分${spent>0?` · 已消耗 ${spent} 分`:''}</span>
+          ${data.m === 1 && data.t > 0 ? `<span>🏆 战队排名 ${data.r} / ${data.t}</span>` : ''}
+        </div>
+      </div>
+      <div class="week-card">
+        <div class="week-title"><span>积分明细</span><span class="total">${total} / ${FULL_MAX}</span></div>
+        <div class="week-items">${itemsHTML}</div>
+        <div class="week-total"><span>累计得分</span><b>${total} 分</b></div>
+      </div>
+      ${rivalTip}
+      ${shopHTML}
+      <div class="report-footer">每一份努力，都算数<br>编程猫9月校区 · 昕言班专属积分榜单</div>
+    </div>
+  `;
+  document.getElementById('parentReport').innerHTML = reportHTML;
+  document.getElementById('parentReport').style.display = 'block';
+  document.getElementById('parentInput').style.display = 'none';
+  document.getElementById('backBtn').addEventListener('click', ()=>{
+    document.getElementById('parentReport').style.display = 'none';
+    document.getElementById('parentInput').style.display = 'block';
+    // 清空搜索框
+    document.getElementById('parentName').value = '';
+    document.getElementById('queryTip').textContent = '';
+  });
+}
+
+/* ===== 事件绑定 ===== */
+const searchInput = document.getElementById('search');
+if(searchInput){
+  searchInput.addEventListener('input', e=>{ kw = e.target.value; kws = parseKeywords(kw); render(); });
+  searchInput.addEventListener('paste', e=>{
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    if(text && /[\n\r]/.test(text)){
+      e.preventDefault();
+      const replaced = text.replace(/[\n\r]+/g,' ').replace(/\s+/g,' ').trim();
+      searchInput.value = replaced; kw = replaced; kws = parseKeywords(replaced); render();
+    }
+  });
+}
+const scBtn = document.getElementById('searchClear');
+if(scBtn) scBtn.addEventListener('click', ()=>{ searchInput.value=''; kw=''; kws=[]; render(); });
+
+document.querySelectorAll('.tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active'); curView = btn.dataset.view; render();
+  });
+});
+
+const tblEl = document.getElementById('table');
+if(tblEl) tblEl.addEventListener('click', e=>{
+  const minus = e.target.closest('.score-minus');
+  if(minus){
+    const rect = minus.getBoundingClientRect();
+    spawnMinusFloat(rect.left+rect.width/2, rect.top+rect.height/2);
+    addCount(minus.dataset.sid, minus.dataset.k, -1); render(); return;
+  }
+  const scoreBtn = e.target.closest('.score-btn');
+  if(scoreBtn){
+    const c = getElCenter(scoreBtn);
+    const r = RULES.find(x=>x.key===scoreBtn.dataset.k);
+    spawnStarBurst(c.x, c.y);
+    spawnPlusFloat(c.x, c.y - 14, r ? r.pts : 1);
+    scoreBtn.classList.add('pulse');
+    const sid = scoreBtn.dataset.sid;
+    setTimeout(()=>{
+      addCount(sid, scoreBtn.dataset.k, 1); render();
+      const newTotal = document.querySelector(`.total-cell[data-total-sid="${sid}"]`);
+      if(newTotal){ newTotal.classList.add('total-bump'); setTimeout(()=>newTotal.classList.remove('total-bump'),700); }
+    }, 60);
+    return;
+  }
+  const mineBtn = e.target.closest('[data-mine]');
+  if(mineBtn){ state.belong[mineBtn.dataset.mine] = !isMine(mineBtn.dataset.mine); save(); render(); return; }
+  const bulkBtn = e.target.closest('[data-bulk]');
+  if(bulkBtn){
+    const k = bulkBtn.dataset.k, act = bulkBtn.dataset.bulk;
+    const list = filtered();
+    if(!list.length) return;
+    const delta = act === 'add' ? 1 : -1;
+    list.forEach(s=>{ const cur = getCount(s.id,k); setCount(s.id,k,cur+delta); });
+    save(); render(); return;
+  }
+});
+
+const ddBtn = document.getElementById('ddBtn');
+const ddMenu = document.getElementById('ddMenu');
+if(ddBtn && ddMenu){
+  ddBtn.addEventListener('click', e=>{ e.stopPropagation(); ddMenu.classList.toggle('show'); });
+  document.addEventListener('click', e=>{
+    if(!ddMenu.contains(e.target) && !ddBtn.contains(e.target)) ddMenu.classList.remove('show');
+  });
+}
+const fillAllBtn = document.getElementById('fillAllBtn');
+if(fillAllBtn) fillAllBtn.addEventListener('click', ()=>{
+  const list = filtered();
+  if(!list.length){ alert('当前没有匹配的学生'); return; }
+  if(!confirm(`确定要给当前筛选的 ${list.length} 位学生每项积分【+1】吗？\n\n（每人 +18 分）`)) return;
+  list.forEach(s=>{ RULES.forEach(r=> setCount(s.id, r.key, getCount(s.id, r.key)+1)); });
+  save(); render();
+  for(let i=0;i<6;i++) setTimeout(()=>spawnStarBurst(window.innerWidth*(.2+Math.random()*.6), window.innerHeight*(.3+Math.random()*.4)), i*100);
+  ddMenu.classList.remove('show');
+});
+const clearAllBtn = document.getElementById('clearAllBtn');
+if(clearAllBtn) clearAllBtn.addEventListener('click', ()=>{
+  const list = filtered();
+  if(!list.length){ alert('当前没有匹配的学生'); return; }
+  if(!confirm(`确定要清空当前筛选的 ${list.length} 位学生的所有积分吗？\n\n此操作不可撤销。`)) return;
+  list.forEach(s=>{ RULES.forEach(r=> setCount(s.id, r.key, 0)); });
+  save(); render();
+  ddMenu.classList.remove('show');
+});
+
+const shopStudentSel = document.getElementById('shopStudent');
+if(shopStudentSel) shopStudentSel.addEventListener('change', e=>{ curShopStudent = e.target.value; renderShop(); });
+const shopGridEl = document.getElementById('shopGrid');
+if(shopGridEl) shopGridEl.addEventListener('click', e=>{
+  const btn = e.target.closest('.redeem-btn');
+  if(!btn || btn.disabled) return;
+  if(!curShopStudent){ alert('请先选择学生'); return; }
+  redeem(curShopStudent, btn.dataset.pid);
+});
+const clearLogBtn = document.getElementById('clearLogBtn');
+if(clearLogBtn) clearLogBtn.addEventListener('click', ()=>{
+  if(!state.redemptions.length){ alert('暂无兑换记录'); return; }
+  if(!confirm(`确定清空全部兑换记录吗？`)) return;
+  state.redemptions = []; save(); render();
+});
+
+const genLinkBtn = document.getElementById('genLinkBtn');
+if(genLinkBtn) genLinkBtn.addEventListener('click', generateParentLink);
+const copyLinkBtn = document.getElementById('copyLinkBtn');
+if(copyLinkBtn) copyLinkBtn.addEventListener('click', ()=>{
+  const url = document.getElementById('linkUrl').textContent;
+  copyLinkToClipboard(url);
+});
+const closeLinkBtn = document.getElementById('closeLinkBtn');
+if(closeLinkBtn) closeLinkBtn.addEventListener('click', ()=>{
+  document.getElementById('linkModal').classList.remove('show');
+});
+const linkModalEl = document.getElementById('linkModal');
+if(linkModalEl) linkModalEl.addEventListener('click', e=>{
+  if(e.target === linkModalEl) linkModalEl.classList.remove('show');
+});
+
+function csvCell(v){ return `"${String(v).replace(/"/g,'""')}"`; }
+const exportBtn = document.getElementById('exportBtn');
+if(exportBtn) exportBtn.addEventListener('click', ()=>{
+  const list = filtered().slice().sort((a,b)=> totalScore(b.id)-totalScore(a.id));
+  const head = ['排名','战队','班级','孩子姓名','微信昵称',...RULES.map(r=>`${r.label}次数`),'总积分','已消耗','可用积分'];
+  const lines = [head.join(',')];
+  list.forEach((s,i)=>{
+    const c = CLASSES[s.cls];
+    lines.push([i+1, c.tag, c.name, csvCell(s.name), csvCell(s.nick),
+      ...RULES.map(r=>getCount(s.id, r.key)),
+      totalScore(s.id), spentScore(s.id), availableScore(s.id)
+    ].join(','));
+  });
+  const blob = new Blob(['\ufeff' + lines.join('\n')], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `编程猫9月校区积分榜_${new Date().toLocaleDateString('zh-CN').replace(/\//g,'-')}.csv`;
+  a.click();
+});
+const resetBtn = document.getElementById('resetBtn');
+if(resetBtn) resetBtn.addEventListener('click', ()=>{
+  if(confirm('确定清空所有积分、归属、兑换记录吗？此操作不可恢复，建议先导出 CSV 备份。')){
+    state = { belong:{}, counts:{}, stock:{}, redemptions:[] }; save(); render();
+  }
+});
+
+/* ===== 启动 ===== */
+(function init(){
+  const hash = location.hash;
+  
+  // 检查是否是通过分享链接进入
+  if(hash && hash.startsWith('#share=')){
+    const dataStr = hash.slice(7); // 去掉 "#share="
+    const count = parseShareHash(dataStr);
+    document.getElementById('parentApp').style.display = 'block';
+    document.getElementById('teacherApp').style.display = 'none';
+    initParent();
+    return;
+  }
+  
+  // 检查旧的 ?mode=parent 格式
+  const params = new URLSearchParams(location.search);
+  if(params.get('mode') === 'parent'){
+    document.getElementById('parentApp').style.display = 'block';
+    document.getElementById('teacherApp').style.display = 'none';
+    initParent();
+    return;
+  }
+  
+  // 老师端
+  document.getElementById('teacherApp').style.display = 'block';
+  document.getElementById('parentApp').style.display = 'none';
+  renderHeroRules();
+  render();
+})();
+</script>
+</body>
+</html>
